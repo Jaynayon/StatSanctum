@@ -1,0 +1,6 @@
+@StatSanctum_HostAddress = http://localhost:5190
+
+GET {{StatSanctum_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
