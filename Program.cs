@@ -12,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IRarityRepository, RarityRepository>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
