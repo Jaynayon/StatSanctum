@@ -20,7 +20,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var equipments = await _equipmentRepository.GetAllEquipments();
+                var equipments = await _equipmentRepository.GetAll();
                 return Ok(equipments);
             }
             catch (Exception ex)
@@ -34,13 +34,13 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var equipment = await _equipmentRepository.GetEquipmentById(id);
-                if (equipment == null)
-                {
-                    return NotFound($"Equipment with ID {id} not found.");
-                }
+                var equipment = await _equipmentRepository.GetById(id);
+      
                 return Ok(equipment);
-
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var savedEquipment = await _equipmentRepository.CreateEquipment(equipment);
+                var savedEquipment = await _equipmentRepository.Create(equipment);
 
                 return CreatedAtAction(nameof(GetEquipments), new { id = savedEquipment.Id }, savedEquipment);
 
@@ -77,12 +77,16 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var updatedEquipment = await _equipmentRepository.UpdateEquipment(id, equipmentDto);
+                var updatedEquipment = await _equipmentRepository.Update(id, equipmentDto);
                 return Ok(updatedEquipment); // 200 OK
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message); // 404 Not Found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
@@ -91,12 +95,16 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                await _equipmentRepository.DeleteEquipmentById(id);
+                await _equipmentRepository.DeleteById(id);
                 return NoContent(); // 204 No Content
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message); // 404 Not Found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

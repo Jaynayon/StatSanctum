@@ -13,7 +13,12 @@ namespace StatSanctum.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<Equipment> CreateEquipment(EquipmentDto equipment)
+        public async Task<IEnumerable<Equipment>> GetAll()
+        {
+            return await _context.Equipments.ToListAsync();
+        }
+
+        public async Task<Equipment> Create(EquipmentDto equipment)
         {
             if (equipment == null)
             {
@@ -34,12 +39,7 @@ namespace StatSanctum.Repositories
             return newEquipment;
         }
 
-        public async Task<IEnumerable<Equipment>> GetAllEquipments()
-        {
-            return await _context.Equipments.ToListAsync();
-        }
-
-        public async Task<Equipment> GetEquipmentById(int id)
+        public async Task<Equipment> GetById(int id)
         {
             var equipment = await _context.Equipments.FindAsync(id);
             if (equipment == null)
@@ -49,15 +49,26 @@ namespace StatSanctum.Repositories
             return equipment;
         }
 
-        public async Task<Equipment> UpdateEquipment(int id, EquipmentDto equipmentDto)
+        public async Task DeleteById(int id)
+        {
+            var equipment = await GetById(id);
+            if (equipment == null)
+            {
+                throw new KeyNotFoundException($"Equipment with ID {id} not found.");
+            }
+            _context.Equipments.Remove(equipment);
+            await _context.SaveChangesAsync(); // Save changes to DB
+        }
+
+        public async Task<Equipment> Update(int id, EquipmentDto equipmentDto)
         {
             if (equipmentDto == null)
             {
                 throw new ArgumentNullException(nameof(equipmentDto));
             }
 
-            var equipment = await GetEquipmentById(id);
-           
+            var equipment = await GetById(id);
+
             // Update properties
             equipment.Name = equipmentDto.Name;
             equipment.Description = equipmentDto.Description ?? "";
@@ -66,17 +77,6 @@ namespace StatSanctum.Repositories
             _context.Equipments.Update(equipment);
             await _context.SaveChangesAsync(); // Save changes to DB
             return equipment;
-        }
-
-        public async Task DeleteEquipmentById(int id)
-        {
-            var equipment = await GetEquipmentById(id);
-            if (equipment == null)
-            {
-                throw new KeyNotFoundException($"Equipment with ID {id} not found.");
-            }
-            _context.Equipments.Remove(equipment);
-            await _context.SaveChangesAsync(); // Save changes to DB
         }
     }
 }
