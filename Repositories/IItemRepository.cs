@@ -3,7 +3,7 @@ using StatSanctum.Models;
 
 namespace StatSanctum.Repositories
 {
-    public interface IEquipmentRepository : IRepository<EquipmentDto, Equipment>
+    public interface IItemRepository : IRepository<ItemDto, Item>
     {
         //Task<IEnumerable<Equipment>> GetAllEquipments();
         //Task<Equipment> CreateEquipment(EquipmentDto equipment);

@@ -7,20 +7,20 @@ namespace StatSanctum.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EquipmentController : ControllerBase
+    public class ItemController : ControllerBase
     {
-        private readonly IEquipmentRepository _equipmentRepository;
-        public EquipmentController(IEquipmentRepository equipmentRepository)
+        private readonly IItemRepository _itemRepository;
+        public ItemController(IItemRepository itemRepository)
         {
-            _equipmentRepository = equipmentRepository ?? throw new ArgumentNullException(nameof(equipmentRepository));
+            _itemRepository = itemRepository ?? throw new ArgumentNullException(nameof(itemRepository));
         }
 
         [HttpGet(Name = "GetEquipments")]
-        public async Task<ActionResult<IEnumerable<Equipment>>> GetEquipments()
+        public async Task<ActionResult<IEnumerable<Item>>> GetEquipments()
         {
             try
             {
-                var equipments = await _equipmentRepository.GetAll();
+                var equipments = await _itemRepository.GetAll();
                 return Ok(equipments);
             }
             catch (Exception ex)
@@ -34,7 +34,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var equipment = await _equipmentRepository.GetById(id);
+                var equipment = await _itemRepository.GetById(id);
       
                 return Ok(equipment);
             }
@@ -49,7 +49,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPost(Name = "CreateEquipment")]
-        public async Task<ActionResult> CreateEquipment([FromBody] EquipmentDto equipment)
+        public async Task<ActionResult> CreateEquipment([FromBody] ItemDto equipment)
         {
             if (equipment == null)
             {
@@ -57,9 +57,9 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var savedEquipment = await _equipmentRepository.Create(equipment);
+                var savedEquipment = await _itemRepository.Create(equipment);
 
-                return CreatedAtAction(nameof(GetEquipments), new { id = savedEquipment.Id }, savedEquipment);
+                return CreatedAtAction(nameof(GetEquipments), new { id = savedEquipment.ItemID }, savedEquipment);
 
             } 
             catch(Exception ex)
@@ -69,7 +69,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateEquipmentById")]
-        public async Task<ActionResult<Equipment>> UpdateEquipment(int id, [FromBody] EquipmentDto equipmentDto)
+        public async Task<ActionResult<Item>> UpdateEquipment(int id, [FromBody] ItemDto equipmentDto)
         {
             if (equipmentDto == null)
             {
@@ -77,7 +77,7 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var updatedEquipment = await _equipmentRepository.Update(id, equipmentDto);
+                var updatedEquipment = await _itemRepository.Update(id, equipmentDto);
                 return Ok(updatedEquipment); // 200 OK
             }
             catch (KeyNotFoundException ex)
@@ -95,7 +95,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                await _equipmentRepository.DeleteById(id);
+                await _itemRepository.DeleteById(id);
                 return NoContent(); // 204 No Content
             }
             catch (KeyNotFoundException ex)

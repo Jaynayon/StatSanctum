@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StatSanctum.Entities
 {
-    public class Equipment
+    public class Item
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public int ItemID { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int Level { get; set; }
-        public EquipmentType Type { get; set; }
+        public ItemType Type { get; set; }
     }
 }

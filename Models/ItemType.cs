@@ -3,7 +3,7 @@
 namespace StatSanctum.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum EquipmentType
+    public enum ItemType
     {
         Armor,
         Belt,

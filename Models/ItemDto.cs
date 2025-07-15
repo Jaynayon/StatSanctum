@@ -1,12 +1,12 @@
 ﻿namespace StatSanctum.Models
 {
-    public class EquipmentDto
+    public class ItemDto
     {
         public string Name { get; set; }
         public string? Description { get; set; }
         public int Level { get; set; }
-        public EquipmentType Type { get; set; }
-        public EquipmentDto(string name, string? description, int level, EquipmentType type)
+        public ItemType Type { get; set; }
+        public ItemDto(string name, string? description, int level, ItemType type)
         {
             Name = name;
             Description = description;
