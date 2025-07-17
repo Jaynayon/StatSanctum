@@ -21,7 +21,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IRepository<Item>, ItemRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
-var entityTypes = new[] { typeof(Item), typeof(Rarity) };
+var entityTypes = new[] { typeof(Item), typeof(Rarity), typeof(ItemType) };
 foreach(var type in entityTypes)
 {
     // Register generic handler per entity type
