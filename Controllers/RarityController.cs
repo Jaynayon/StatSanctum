@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Models;
-using StatSanctum.Repositories;
 
 namespace StatSanctum.Controllers
 {
@@ -25,8 +24,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var query = new GetAllQuery<Rarity>();
-                var rarities = await _mediator.Send(query);
+                var rarities = await _mediator.Send(new GetAllQuery<Rarity>());
 
                 return Ok(rarities);
             }
@@ -41,8 +39,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var query = new GetByIdQuery<Rarity> { Id = id };
-                var rarity = await _mediator.Send(query);
+                var rarity = await _mediator.Send(new GetByIdQuery<Rarity> { Id = id });
 
                 return Ok(rarity);
             }
@@ -65,11 +62,9 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var query = new CreateCommand<Rarity> { Entity = _mapper.Map<Rarity>(rarity) };
-                var savedRarity = await _mediator.Send(query);
+                var savedRarity = await _mediator.Send(new CreateCommand<Rarity> { Entity = _mapper.Map<Rarity>(rarity) });
 
                 return CreatedAtAction(nameof(GetRaritiesById), new { id = savedRarity.RarityID }, savedRarity);
-
             }
             catch (Exception ex)
             {
@@ -87,13 +82,11 @@ namespace StatSanctum.Controllers
             try
             {
                 // Get existing item
-                var query = new GetByIdQuery<Rarity> { Id = id };
-                var existingRarity = await _mediator.Send(query);
+                var existingRarity = await _mediator.Send(new GetByIdQuery<Rarity> { Id = id });
 
                 var updatedRarity = _mapper.Map(rarityDto, existingRarity);
 
-                var command = new UpdateCommand<Rarity> { Entity = updatedRarity };
-                var rarityEquipment = await _mediator.Send(command);
+                var rarityEquipment = await _mediator.Send(new UpdateCommand<Rarity> { Entity = updatedRarity });
 
                 return Ok(rarityEquipment); // 200 OK
             }
@@ -112,8 +105,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var command = new DeleteCommand<Rarity> { Id = id };
-                await _mediator.Send(command);
+                await _mediator.Send(new DeleteCommand<Rarity> { Id = id });
 
                 return NoContent(); // 204 No Content
             }

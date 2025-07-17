@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StatSanctum.Contexts;
 using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Models;
-using StatSanctum.Repositories;
 
 namespace StatSanctum.Controllers
 {
@@ -28,8 +25,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var query = new GetAllQuery<Item>();
-                var items = await _mediator.Send(query);
+                var items = await _mediator.Send(new GetAllQuery<Item>());
             
                 return Ok(items);
             }
@@ -44,8 +40,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var query = new GetByIdQuery<Item> { Id = id };
-                var item = await _mediator.Send(query);
+                var item = await _mediator.Send(new GetByIdQuery<Item> { Id = id });
 
                 return Ok(item);
             }
@@ -68,11 +63,9 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var command = new CreateCommand<Item> { Entity = _mapper.Map<Item>(equipment) };
-                var savedEquipment = await _mediator.Send(command);
+                var savedEquipment = await _mediator.Send(new CreateCommand<Item> { Entity = _mapper.Map<Item>(equipment) });
 
                 return CreatedAtAction(nameof(GetItemsById), new { id = savedEquipment.ItemID }, savedEquipment);
-
             }
             catch (Exception ex)
             {
@@ -90,13 +83,11 @@ namespace StatSanctum.Controllers
             try
             {
                 // Get existing item
-                var query = new GetByIdQuery<Item> { Id = id };
-                var item = await _mediator.Send(query);
+                var item = await _mediator.Send(new GetByIdQuery<Item> { Id = id });
 
                 var updatedItem = _mapper.Map(itemDto, item);
 
-                var command = new UpdateCommand<Item> { Entity = updatedItem };
-                var updatedEquipment = await _mediator.Send(command);
+                var updatedEquipment = await _mediator.Send(new UpdateCommand<Item> { Entity = updatedItem });
 
                 return Ok(updatedEquipment); // 200 OK
             }
@@ -115,8 +106,7 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var command = new DeleteCommand<Item> { Id = id };
-                await _mediator.Send(command);
+                await _mediator.Send(new DeleteCommand<Item> { Id = id });
 
                 return NoContent(); // 204 No Content
             }

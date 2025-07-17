@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StatSanctum.Contexts;
-using StatSanctum.Entities;
 using StatSanctum.Helpers;
 
 namespace StatSanctum.Repositories
