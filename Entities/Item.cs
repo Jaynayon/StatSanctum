@@ -1,10 +1,11 @@
-﻿using StatSanctum.Models;
+﻿using StatSanctum.Helpers;
+using StatSanctum.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StatSanctum.Entities
 {
-    public class Item
+    public class Item : Base
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

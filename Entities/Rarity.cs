@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using StatSanctum.Helpers;
 
 namespace StatSanctum.Entities
 {
-    public class Rarity
+    public class Rarity : Base
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

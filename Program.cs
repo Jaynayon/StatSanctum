@@ -1,5 +1,12 @@
+using System.Reflection;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using StatSanctum.Contexts;
+using StatSanctum.Entities;
+using StatSanctum.Handlers;
+using StatSanctum.Helpers;
 using StatSanctum.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +18,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddScoped<IItemRepository, ItemRepository>();
-builder.Services.AddScoped<IRarityRepository, RarityRepository>();
+builder.Services.AddMediatR(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+var entityTypes = new[] { typeof(Item), typeof(Rarity) };
+foreach(var type in entityTypes)
+{
+    // Register generic handler per entity type
+    builder.Services.AddScoped(typeof(IRequestHandler<,>).MakeGenericType(typeof(GetByIdQuery<>).MakeGenericType(type), type), typeof(Handler<>).MakeGenericType(type));
+    builder.Services.AddScoped(typeof(IRequestHandler<,>).MakeGenericType(typeof(GetAllQuery<>).MakeGenericType(type), typeof(IEnumerable<>).MakeGenericType(type)), typeof(Handler<>).MakeGenericType(type));
+    builder.Services.AddScoped(typeof(IRequestHandler<,>).MakeGenericType(typeof(CreateCommand<>).MakeGenericType(type), type), typeof(Handler<>).MakeGenericType(type));
+    builder.Services.AddScoped(typeof(IRequestHandler<,>).MakeGenericType(typeof(UpdateCommand<>).MakeGenericType(type), type), typeof(Handler<>).MakeGenericType(type));
+    builder.Services.AddScoped(typeof(IRequestHandler<,>).MakeGenericType(typeof(DeleteCommand<>).MakeGenericType(type), typeof(bool)), typeof(Handler<>).MakeGenericType(type));
+}
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

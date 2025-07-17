@@ -1,11 +1,11 @@
 ﻿namespace StatSanctum.Repositories
 {
-    public interface IRepository<TDto, TEntity>
+    public interface IRepository<T>
     {
-        Task<IEnumerable<TEntity>> GetAll();
-        Task<TEntity> Create(TDto dto);
-        Task<TEntity> GetById(int id);
-        Task DeleteById(int id);
-        Task<TEntity> Update(int id, TDto dto);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> CreateAsync(T dto);
+        Task<T> GetByIdAsync(int id);
+        Task<bool> DeleteByIdAsync(int id);
+        Task<T> UpdateAsync(T dto);
     }
 }

@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using StatSanctum.Entities;
+using StatSanctum.Handlers;
 using StatSanctum.Models;
 using StatSanctum.Repositories;
 
@@ -9,18 +12,23 @@ namespace StatSanctum.Controllers
     [Route("[controller]")]
     public class RarityController : ControllerBase
     {
-        private readonly IRarityRepository _rarityRepository;
-        public RarityController(IRarityRepository rarityRepository)
+        private IMediator _mediator;
+        private IMapper _mapper;
+        public RarityController(IMediator mediator, IMapper mapper)
         {
-            _rarityRepository = rarityRepository ?? throw new ArgumentNullException(nameof(rarityRepository));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+
         [HttpGet(Name = "GetRarities")]
-        public async Task<ActionResult<IEnumerable<Rarity>>> GetRarities()
+        public async Task<ActionResult<IEnumerable<Rarity>>> GetAllRarity()
         {
             try
             {
-                var rarity = await _rarityRepository.GetAll();
-                return Ok(rarity);
+                var query = new GetAllQuery<Rarity>();
+                var rarities = await _mediator.Send(query);
+
+                return Ok(rarities);
             }
             catch (Exception ex)
             {
@@ -33,7 +41,8 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                var rarity = await _rarityRepository.GetById(id);
+                var query = new GetByIdQuery<Rarity> { Id = id };
+                var rarity = await _mediator.Send(query);
 
                 return Ok(rarity);
             }
@@ -56,9 +65,10 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var savedRarity = await _rarityRepository.Create(rarity);
+                var query = new CreateCommand<Rarity> { Entity = _mapper.Map<Rarity>(rarity) };
+                var savedRarity = await _mediator.Send(query);
 
-                return CreatedAtAction(nameof(GetRarities), new { id = savedRarity.RarityID }, savedRarity);
+                return CreatedAtAction(nameof(GetRaritiesById), new { id = savedRarity.RarityID }, savedRarity);
 
             }
             catch (Exception ex)
@@ -68,7 +78,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateRarityById")]
-        public async Task<ActionResult<Item>> UpdateRarityById(int id, [FromBody] RarityDto rarityDto)
+        public async Task<ActionResult<Rarity>> UpdateRarityById(int id, [FromBody] RarityDto rarityDto)
         {
             if (rarityDto == null)
             {
@@ -76,7 +86,15 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var rarityEquipment = await _rarityRepository.Update(id, rarityDto);
+                // Get existing item
+                var query = new GetByIdQuery<Rarity> { Id = id };
+                var existingRarity = await _mediator.Send(query);
+
+                var updatedRarity = _mapper.Map(rarityDto, existingRarity);
+
+                var command = new UpdateCommand<Rarity> { Entity = updatedRarity };
+                var rarityEquipment = await _mediator.Send(command);
+
                 return Ok(rarityEquipment); // 200 OK
             }
             catch (KeyNotFoundException ex)
@@ -94,7 +112,9 @@ namespace StatSanctum.Controllers
         {
             try
             {
-                await _rarityRepository.DeleteById(id);
+                var command = new DeleteCommand<Rarity> { Id = id };
+                await _mediator.Send(command);
+
                 return NoContent(); // 204 No Content
             }
             catch (KeyNotFoundException ex)
