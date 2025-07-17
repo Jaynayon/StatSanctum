@@ -10,9 +10,13 @@ namespace StatSanctum.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ItemID { get; set; }
+        [Required]
         public string Name { get; set; } = string.Empty;
+        [Required]
         public string Description { get; set; } = string.Empty;
+        [Required]
         public int Level { get; set; }
-        public ItemType Type { get; set; }
+        public Rarity? Rarity { get; set; }
+        public int RarityID { get; set; }
     }
 }

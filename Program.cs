@@ -18,6 +18,8 @@ builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IRepository<Item>, ItemRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
 var entityTypes = new[] { typeof(Item), typeof(Rarity) };
 foreach(var type in entityTypes)

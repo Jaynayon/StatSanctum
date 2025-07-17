@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Models;
+using StatSanctum.Queries.Items;
 
 namespace StatSanctum.Controllers
 {
@@ -21,11 +22,11 @@ namespace StatSanctum.Controllers
         }
 
         [HttpGet(Name = "GetAllItems")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetAllItems()
+        public async Task<ActionResult<IEnumerable<ItemRarityDto>>> GetAllItems()
         {
             try
             {
-                var items = await _mediator.Send(new GetAllQuery<Item>());
+                var items = await _mediator.Send(new GetAllItemsQuery());
             
                 return Ok(items);
             }
@@ -36,11 +37,11 @@ namespace StatSanctum.Controllers
         }
 
         [HttpGet("{id}", Name = "GetItemsById")]
-        public async Task<ActionResult> GetItemsById(int id)
+        public async Task<ActionResult<ItemRarityDto>> GetItemsById(int id)
         {
             try
             {
-                var item = await _mediator.Send(new GetByIdQuery<Item> { Id = id });
+                var item = await _mediator.Send(new GetItemByIdQuery { Id = id });
 
                 return Ok(item);
             }
