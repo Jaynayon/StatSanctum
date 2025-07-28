@@ -14,6 +14,8 @@ namespace StatSanctum.Profiles
             CreateMap<RarityDto, Rarity>();
             CreateMap<ItemType, ItemTypeDto>();
             CreateMap<ItemTypeDto, ItemType>();
+            CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>();
         }
     }
 }
