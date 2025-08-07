@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using StatSanctum.API.Models;
 using StatSanctum.Entities;
 using StatSanctum.Models;
 
@@ -16,6 +17,7 @@ namespace StatSanctum.Profiles
             CreateMap<ItemTypeDto, ItemType>();
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
+            CreateMap<User, UserResponseDto>();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StatSanctum.API.Models;
+using StatSanctum.API.Queries.Users;
 using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Models;
@@ -63,9 +65,10 @@ namespace StatSanctum.Controllers
             }
             try
             {
-                var savedUser = await _mediator.Send(new CreateCommand<User> { Entity = _mapper.Map<User>(user) });
+                var savedUser = await _mediator.Send(new CreateUserCommand<User> { Entity = _mapper.Map<User>(user) });
+                var userDto = _mapper.Map<UserResponseDto>(savedUser);
 
-                return CreatedAtAction(nameof(GetUsersById), new { id = savedUser.UserID }, savedUser);
+                return CreatedAtAction(nameof(GetUsersById), new { id = userDto.UserID }, userDto);
             }
             catch (Exception ex)
             {

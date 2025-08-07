@@ -7,6 +7,7 @@ using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Repositories;
 using Microsoft.OpenApi.Models;
+using StatSanctum.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IRepository<Item>, ItemRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var entityTypes = new[] { typeof(Item), typeof(Rarity), typeof(ItemType), typeof(User) };
 foreach(var type in entityTypes)
