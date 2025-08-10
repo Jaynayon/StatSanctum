@@ -31,8 +31,7 @@ namespace StatSanctum.Handlers
 
         public async Task<T> Handle(CreateCommand<T> request, CancellationToken cancellationToken)
         {
-            await _repository.CreateAsync(request.Entity);
-            return request.Entity;
+            return await _repository.CreateAsync(request.Entity);
         }
 
         public async Task<T> Handle(UpdateCommand<T> request, CancellationToken cancellationToken)
