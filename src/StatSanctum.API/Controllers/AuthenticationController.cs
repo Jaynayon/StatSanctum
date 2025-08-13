@@ -84,7 +84,7 @@ namespace StatSanctum.Controllers
             }
         }
 
-        private static string GenerateToken(string sub, string username)
+        private static string GenerateToken(string sub, string name)
         {
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(_key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -92,7 +92,7 @@ namespace StatSanctum.Controllers
             var claims = new[]
             {
                 new Claim("sub", sub),
-                new Claim("username", username),
+                new Claim("name", name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())  // Unique token ID
             };
 
