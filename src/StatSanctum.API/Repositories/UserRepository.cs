@@ -59,6 +59,9 @@ namespace StatSanctum.API.Repositories
             if (string.IsNullOrWhiteSpace(user.Salt))
                 throw new ArgumentException("User does not have a salt value to hash the password.");
 
+            if (string.IsNullOrWhiteSpace(user.Password))
+                throw new ArgumentException("User does not have a password.");
+
             var hashedPassword = PasswordHelper.HashPassword(password, user.Salt);
 
             if(user.Password == hashedPassword)
