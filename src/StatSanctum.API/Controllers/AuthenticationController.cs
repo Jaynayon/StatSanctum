@@ -1,7 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using StatSanctum.API.Models;
+using StatSanctum.API.Queries.Users;
+using StatSanctum.Entities;
+using StatSanctum.Handlers;
 
 namespace StatSanctum.Controllers
 {
@@ -15,34 +22,77 @@ namespace StatSanctum.Controllers
         private static string _authority = string.Empty;
         private static string _audience = string.Empty;
 
-        public AuthenticationController(IConfiguration configuration)
+        private IMediator _mediator;
+        private IMapper _mapper;
+
+        public AuthenticationController(IConfiguration configuration, IMediator mediator, IMapper mapper)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _key = _configuration["Authentication:SecretKey"] ?? throw new ArgumentNullException("Security key is empty");
             _authority = _configuration["Authentication:Authority"] ?? throw new ArgumentNullException("Authority is empty");
             _audience = _configuration["Authentication:Audience"] ?? throw new ArgumentNullException("Audience is empty");
+
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        [HttpGet("token")]
-        public ActionResult<string> GetToken()
+        //[HttpGet("token")]
+        //public ActionResult<string> GetToken()
+        //{
+        //    // validate user credentials
+
+        //    // create a token
+        //    var token = GenerateToken("", "");
+
+        //    return Ok(token);
+        //}
+
+        [HttpPost("login")]
+        public async Task<ActionResult<string>> VerifyUser(UserLoginDto request)
         {
-            // validate user credentials
+            if (request == null)
+            {
+                return BadRequest("User data is required.");
+            }
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest("Username and password are required.");
+            }
+            try
+            {
+                var (userId, username) = await _mediator.Send(new ValidateUserCommand<User>
+                {
+                    Username = request.Username,
+                    Password = request.Password
+                });
 
-            // create a token
-            var token = GenerateToken(_key, _authority, _audience);
+                if (userId != 0 && !string.IsNullOrWhiteSpace(username))
+                {
+                    var token = GenerateToken(Convert.ToString(userId), username);
+                    return Ok(token); // Login successful
+                }
 
-            return Ok(token);
+                return Unauthorized("Invalid username or password."); // Login failed
+            }
+            catch(ArgumentException)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        private static string GenerateToken(string key, string authority, string audience)
+        private static string GenerateToken(string sub, string username)
         {
             var securityKey = new SymmetricSecurityKey(Convert.FromBase64String(_key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim("sub", "basta"),
-                new Claim("username", "basta username"),
+                new Claim("sub", sub),
+                new Claim("username", username),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())  // Unique token ID
             };
 

@@ -5,7 +5,9 @@ using StatSanctum.Entities;
 
 namespace StatSanctum.API.Handlers
 {
-    public class UserHandler : IRequestHandler<CreateUserCommand<User>, User>
+    public class UserHandler : 
+        IRequestHandler<CreateUserCommand<User>, User>,
+        IRequestHandler<ValidateUserCommand<User>, (int, string?)>
     {
         private readonly IUserRepository _userRepository;
 
@@ -17,6 +19,11 @@ namespace StatSanctum.API.Handlers
         public async Task<User> Handle(CreateUserCommand<User> request, CancellationToken cancellationToken)
         {
             return await _userRepository.CreateUserAsync(request.Entity);
+        }
+
+        public async Task<(int, string?)> Handle(ValidateUserCommand<User> request, CancellationToken cancellationToken)
+        {
+            return await _userRepository.ValidateUserCredentials(request.Username, request.Password);
         }
     }
 }
