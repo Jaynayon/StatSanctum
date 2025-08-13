@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using StatSanctum.API.Enums;
 
 namespace StatSanctum.API.Queries.Users
 {
@@ -6,5 +7,6 @@ namespace StatSanctum.API.Queries.Users
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public AuthenticationMethod Method { get; set; } // Default web; manual
     }
 }

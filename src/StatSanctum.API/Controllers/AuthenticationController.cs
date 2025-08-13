@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using StatSanctum.API.Enums;
 using StatSanctum.API.Models;
 using StatSanctum.API.Queries.Users;
 using StatSanctum.Entities;
@@ -63,7 +64,8 @@ namespace StatSanctum.Controllers
                 var (userId, username) = await _mediator.Send(new ValidateUserCommand<User>
                 {
                     Username = request.Username,
-                    Password = request.Password
+                    Password = request.Password,
+                    Method = AuthenticationMethod.Manual
                 });
 
                 if (userId != 0 && !string.IsNullOrWhiteSpace(username))

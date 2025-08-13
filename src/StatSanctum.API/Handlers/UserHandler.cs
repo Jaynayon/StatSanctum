@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using StatSanctum.API.Enums;
 using StatSanctum.API.Queries.Users;
 using StatSanctum.API.Repositories;
 using StatSanctum.Entities;
@@ -23,7 +24,21 @@ namespace StatSanctum.API.Handlers
 
         public async Task<(int, string?)> Handle(ValidateUserCommand<User> request, CancellationToken cancellationToken)
         {
-            return await _userRepository.ValidateUserCredentials(request.Username, request.Password);
+            Func<string, string, Task<(int, string?)>> validateUser;
+
+            switch (request.Method)
+            {
+                case AuthenticationMethod.Google:
+                    validateUser = _userRepository.ValidateUserCredentials;
+                    break;
+                case AuthenticationMethod.Manual:
+                    validateUser = _userRepository.ValidateUserCredentials;
+                    break;
+                default:
+                    throw new NotSupportedException($"Validation method '{request.Method}' is not supported.");
+            }
+
+            return await validateUser(request.Username, request.Password);
         }
     }
 }
