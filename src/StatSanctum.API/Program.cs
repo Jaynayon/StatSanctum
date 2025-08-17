@@ -1,13 +1,17 @@
+using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using StatSanctum.API.Repositories;
 using StatSanctum.Contexts;
 using StatSanctum.Entities;
 using StatSanctum.Handlers;
 using StatSanctum.Repositories;
-using Microsoft.OpenApi.Models;
-using StatSanctum.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,7 +81,13 @@ builder.Services.AddSwaggerGen(options =>
 var authority = builder.Configuration["Authentication:Authority"];
 var audience = builder.Configuration["Authentication:Audience"];
 var key = builder.Configuration["Authentication:SecretKey"] ?? "";
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Needed for Google OAuth
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(jwtOptions =>
     {
         jwtOptions.Authority = authority;
@@ -92,7 +102,42 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Convert.FromBase64String(key))
         };
+    })
+    // Cookie Authentication for Google OAuth
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    })
+    // Google OAuth
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.CallbackPath = "/signin-google"; // Must match Google's redirect URI
+        options.SaveTokens = true; // Save tokens (access_token, id_token) in cookies
+
+        // Request email and profile scopes
+        options.Scope.Add("email");
+        options.Scope.Add("profile");
     });
+
+// Add authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("JWT", policy =>
+    {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+              .RequireAuthenticatedUser();
+    });
+
+    options.AddPolicy("Google", policy =>
+    {
+        policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
+              .RequireAuthenticatedUser();
+    });
+});
 
 var app = builder.Build();
 
@@ -104,10 +149,23 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
+
+// Google OAuth endpoints(for browsers)
+app.MapGet("/web/login", async (HttpContext context) =>
+{
+    await context.ChallengeAsync(GoogleDefaults.AuthenticationScheme, new AuthenticationProperties
+    {
+        RedirectUri = "/web/secure"
+    });
+});
+
+app.MapGet("/web/secure", (HttpContext context) =>
+{
+    var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+    return $"Hello {email} (Google OAuth)!";
+});
 
 app.MapControllers();
 
