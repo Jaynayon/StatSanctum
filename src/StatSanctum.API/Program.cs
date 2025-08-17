@@ -1,12 +1,11 @@
-using System.Security.Claims;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StatSanctum.API.Helper;
 using StatSanctum.API.Repositories;
 using StatSanctum.Contexts;
 using StatSanctum.Entities;
@@ -80,9 +79,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Add Authentication
-var authority = builder.Configuration["Authentication:Authority"];
-var audience = builder.Configuration["Authentication:Audience"];
-var key = builder.Configuration["Authentication:SecretKey"] ?? "";
+var auth = builder.Configuration.GetSection("Authentication");
+var authority = auth["Authority"]!;
+var audience = auth["Audience"]!;
+var key = auth["SecretKey"]!;
+var googleClientId = auth["Google:ClientId"]!;
+var googleClientSecret = auth["Google:ClientSecret"]!;
 
 builder.Services
     .AddAuthentication(options =>
@@ -115,8 +117,8 @@ builder.Services
     // Google OAuth
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
         options.CallbackPath = "/signin-google"; // Must match Google's redirect URI
         options.SaveTokens = true; // Save tokens (access_token, id_token) in cookies
 
@@ -153,21 +155,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Google OAuth endpoints(for browsers)
-app.MapGet("/web/login", async (HttpContext context) =>
-{
-    await context.ChallengeAsync(GoogleDefaults.AuthenticationScheme, new AuthenticationProperties
-    {
-        RedirectUri = "/web/secure"
-    });
-});
-
-app.MapGet("/web/secure", (HttpContext context) =>
-{
-    var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-    return $"Hello {email} (Google OAuth)!";
-});
 
 app.MapControllers();
 
