@@ -60,7 +60,7 @@ namespace StatSanctum.Controllers
                         Expires = DateTime.UtcNow.AddHours(_hours)
                     });
 
-                    return Ok(token);
+                    return Ok(new { message = "Login successful", token});
                 }
 
                 return Unauthorized("Invalid username or password.");
@@ -94,7 +94,7 @@ namespace StatSanctum.Controllers
             var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             if (!string.IsNullOrEmpty(email))
             {
-                return Ok($"Hello {email} (Google OAuth)!");
+                return Ok(new { message = "User is authenticated", Oauth = $"Hello {email} (Google OAuth)!" });
             }
 
             return Unauthorized(new { message = "User is not authenticated" });
