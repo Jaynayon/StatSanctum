@@ -20,7 +20,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpGet(Name = "GetRarities")]
-        public async Task<ActionResult<IEnumerable<Rarity>>> GetAllRarity()
+        public async Task<ActionResult> GetAllRarity()
         {
             try
             {
@@ -73,7 +73,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateRarityById")]
-        public async Task<ActionResult<Rarity>> UpdateRarityById(int id, [FromBody] RarityDto rarityDto)
+        public async Task<ActionResult> UpdateRarityById(int id, [FromBody] RarityDto rarityDto)
         {
             if (rarityDto == null)
             {

@@ -28,7 +28,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<string>> Login(UserLoginDto request)
+        public async Task<ActionResult> Login(UserLoginDto request)
         {
             if (request == null)
             {
@@ -78,7 +78,7 @@ namespace StatSanctum.Controllers
         [HttpPost("[action]")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("AuthToken");
+            Response.Cookies.Delete(_cookieName);
             return Ok(new { message = "Logged out" });
         }
 

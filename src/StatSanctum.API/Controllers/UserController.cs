@@ -23,7 +23,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpGet(Name = "GetUsers")]
-        public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
+        public async Task<ActionResult> GetAllUsers()
         {
             try
             {
@@ -77,7 +77,7 @@ namespace StatSanctum.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateUserById")]
-        public async Task<ActionResult<User>> UpdateUserById(int id, [FromBody] UserDto userDto)
+        public async Task<ActionResult> UpdateUserById(int id, [FromBody] UserDto userDto)
         {
             if (userDto == null)
             {
